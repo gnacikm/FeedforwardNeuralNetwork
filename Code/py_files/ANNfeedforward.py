@@ -30,8 +30,9 @@ class Layer:
         else:
             self.g = activation[g]
             self.Dg = activation["D{}".format(g)]
-        self.weights = 2*np.random.random(size=(n[0],n[1]))-1
-        self.bias = np.ones(n[-1])
+        #self.weights = np.random.uniform(low = -0.05, high=0.05, size=(n[0],n[1]))
+        self.weights = np.random.normal(0.0, 0.05, size=(n[0],n[1]))
+        self.bias = np.zeros(n[-1])
         self.dw = np.zeros(shape=(n[0],n[1]))
         self.db =  np.zeros(n[-1])
         self.z = np.zeros(n[-1])
@@ -137,8 +138,7 @@ class NeuralNetwork:
         if len(ActivFun)== 1:
             self.ActivFun = [ActivFun[0] for k in range(self.size-1)]
         elif len(ActivFun) == 2:
-            self.ActivFun = [ActivFun[0] for k in range(self.size-2)] 
-            + [ActivFun[-1]]
+            self.ActivFun = [ActivFun[0] for k in range(self.size-2)] + [ActivFun[-1]]
         else:
             assert len(ActivFun) == self.size-1
             self.ActivFun = ActivFun

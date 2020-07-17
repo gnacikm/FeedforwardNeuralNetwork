@@ -18,23 +18,15 @@ def ReLu(z):
 def DReLu(z):
     return np.where(z>=0, 1, 0)
 
-def ID(z):
-    return z
-
-def DID(z):
-    return 1
-
 # Dictionary of known activation functions
 activation = {"sigmoid": sigmoid,
           "Dsigmoid": Dsigmoid,
           "tanh": np.tanh,
           "Dtanh": Dtanh,
-          "id":   ID,
-          "Did":  DID,
           "SoftPlus": SoftPlus,
           "DSoftPlus": sigmoid,
           "ReLu": ReLu,
-          "DReLu": DReLu
+          "DReLu": DReLu,
           }
 
 def costfunct(y_train, y_pred):
