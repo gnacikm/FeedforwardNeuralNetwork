@@ -1,0 +1,1 @@
+Please generate MNIST data set (we get it via Keras from keras.datasets import mnist) via running all cells from the Notebook PreparingData.ipynb.
