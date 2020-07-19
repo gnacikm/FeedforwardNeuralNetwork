@@ -29,24 +29,7 @@ activation = {"sigmoid": sigmoid,
           "DReLu": DReLu,
           }
 
-def costfunct(y_train, y_pred):
-    """
-    Inputs:
-    y_train: np.array, your Y training data set
-    y_pred: np.array, your network predictions
-    Desc:
-    Returns the sum of squares of errors
-    """
-    return np.sum((y_pred - y_train)**2)
-    
 
-def Dcost(y_train, y_pred):
-    """
-    Inputs:
-    y_train: np.array, your Y training data set
-    y_pred: np.array, your network predictions
-    Desc:
-    Vector of derivatives of costfunction given input
-    """
-    return 2*(y_pred - y_train)
+
+
  

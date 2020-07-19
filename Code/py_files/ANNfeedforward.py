@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
 from tqdm import tqdm
-from helperfunc import costfunct, Dcost, activation
+from helperfunc import activation
 
 
 class Layer:
@@ -86,7 +86,7 @@ class Layer:
         """
         if lastlayer:
             w = self.weights
-            self.dcost_dz_last = Dcost(y_train, kwargs["y_pred"])*self.Dg(self.z)
+            self.dcost_dz_last = NeuralNetwork.Dloss(y_train, kwargs["y_pred"])*self.Dg(self.z)
             delta= self.dcost_dz_last[:]
             self.DzDweight_last = a_prev
             self.DzDweight_last = self.DzDweight_last.reshape(-1, 1)
@@ -216,7 +216,8 @@ class NeuralNetwork:
               epochs, 
               minibatch_size,
               learning_rate=0.1,
-              myseed = 0
+              myseed = 0,
+              mnist = True
               ):
         """
             Input:
@@ -232,7 +233,7 @@ class NeuralNetwork:
         """
         np.random.seed(myseed)
         ind = np.arange(x_train.shape[0])
-        for j in tqdm(range(epochs), desc = "epochs:"):
+        for j in tqdm(range(epochs), desc = "epochs"):
             ind_choice = np.random.choice(ind, size=x_train.shape[0], replace=False)
             x_train_copy = x_train[ind_choice]
             y_train_copy = y_train[ind_choice]
@@ -243,7 +244,9 @@ class NeuralNetwork:
 
             for x, y in zip(batchx, batchy):
                 self.update(x, y, learning_rate)
-
+            if mnist == True:
+                print("loss: {}, accuracy: {}".format(self.loss(x_train, y_train), self.score(x_train, y_train)))
+          
     def update(self, x, y, learning_rate = 0.1): 
         """
             Input:
@@ -259,7 +262,31 @@ class NeuralNetwork:
                 ModWeights = (learning_rate/samp_size)*self.layers[j].dw
                 ModBias = (learning_rate/samp_size)*self.layers[j].db
                 self.layers[j].UpdateWeightsBiases(ModWeights, ModBias) 
-
+                
+    def loss(self, x_input, y_labels, lossMethod = "mse"):
+        """
+        Input:
+        x_input: a numpy array, your X training/test set
+        y_labels: a numpy array, your Y training/test set (matching X)
+        Desc:
+        Returns the average cost of your network
+        """
+        y_pred = np.array([self.feedforward(x) for x in  x_input])
+        if lossMethod == "mse":
+            lossValue = np.array([(pred -  y_item)**2 for pred, y_item in zip(y_pred, y_labels)]).mean()
+        return lossValue 
+    
+    
+    def Dloss(y_train, y_pred, lossMethod = "mse"):
+        """
+        Inputs:
+        y_train: np.array, your Y training data set
+        y_pred: np.array, your network predictions
+        Desc:
+        Vector of derivatives of costfunction given input
+        """
+        if lossMethod == "mse":
+            return 2*(y_pred - y_train)
     
     def score(self, x_test, y_test, mnist = True):
         """
@@ -275,20 +302,9 @@ class NeuralNetwork:
         preds_format = preds.argmax(axis = 1)
         label_format = y_test.argmax(axis = 1)
         correct_preds = label_format[label_format == preds_format].size
-        print("predicted {} out of {} ".format(correct_preds, x_test.shape[0]))
-        print("The accuracy is {} % ".format(correct_preds/x_test.shape[0]*100))
+        return correct_preds/x_test.shape[0]
     
-    def average_cost(self, x_input, y_labels):
-        """
-        Input:
-        x_input: a numpy array, your X training/test set
-        y_labels: a numpy array, your Y training/test set (matching X)
-        Desc:
-        Returns the average cost of your network
-        """
-        preds = np.array([self.feedforward(x) for x in x_input])
-        avg_cost = np.array([costfunct(pred, y_item) for pred, y_item in zip(preds, y_labels)]).mean()
-        return avg_cost
+ 
         
     def plotnetwork(self, save_file=False):
         """
