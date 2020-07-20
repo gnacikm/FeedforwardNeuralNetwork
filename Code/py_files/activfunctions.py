@@ -26,7 +26,7 @@ activation = {"sigmoid": sigmoid,
           "SoftPlus": SoftPlus,
           "DSoftPlus": sigmoid,
           "ReLu": ReLu,
-          "DReLu": DReLu,
+          "DReLu": DReLu
           }
 
 

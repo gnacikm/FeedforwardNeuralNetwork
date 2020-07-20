@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
 from tqdm import tqdm
-from helperfunc import activation
+from activfunctions import activation
 
 
 class Layer:
@@ -150,20 +150,8 @@ class NeuralNetwork:
             for k in range(1,self.size)
         ]
         
-    @classmethod   
-    def makenetwork_str(cls, shape, str_activ_fun):
-        """
-            Input:
-            shape:  a tuple, the length represents the number of layers,
-                    its elements represent the number of nodes/neurons 
-                    at the corresponding layer
-            str_activ_fun: a string, to provide an activation function as a string
-            rather then a list of strings or methods
-        
-        """
-        return cls(shape, [str_activ_fun])
-
-        
+   
+  
     def feedforward(self, x_input):
         """
             Input:
@@ -214,7 +202,8 @@ class NeuralNetwork:
     def train(self, x_train,
               y_train,
               epochs, 
-              minibatch_size,
+              optimizer = "sgd",
+              minibatch_size=50,
               learning_rate=0.1,
               myseed = 0,
               mnist = True
@@ -224,8 +213,9 @@ class NeuralNetwork:
                 x_train: a numpy array - full X training data set
                 y_train: a numpy array - full Y training data set
                 epochs: int - the number of epochs that you wish to run
-                minibatch_size: int, the size of your minibatch for SGD
-                learning_rate: float, the learning rate for SGD 
+                optimizer: str - specifying your learning algorithm 
+                minibatch_size: int, the size of your minibatch for learning algorithm 
+                learning_rate: float, the learning rate for learning algorithm 
                 myseed: int, fixing the seed for np.random
             Desc:
             Perform the training of your network, prepares the mini-batches for the SGD
@@ -243,11 +233,11 @@ class NeuralNetwork:
                 [y_train_copy[i: i+ minibatch_size] for i in range(0,x_train.shape[0], minibatch_size)])
 
             for x, y in zip(batchx, batchy):
-                self.update(x, y, learning_rate)
+                self.update(x, y, learning_rate, optimizer=optimizer)
             if mnist == True:
                 print("loss: {}, accuracy: {}".format(self.loss(x_train, y_train), self.score(x_train, y_train)))
           
-    def update(self, x, y, learning_rate = 0.1): 
+    def update(self, x, y, learning_rate = 0.1, optimizer = "sgd"): 
         """
             Input:
                 x: a numpy array - a mini-batch from X training set
@@ -259,8 +249,9 @@ class NeuralNetwork:
         for x_samp, y_samp in zip(x, y):
             self.backpropagation(x_samp, y_samp)
             for j in range(self.size-1):
-                ModWeights = (learning_rate/samp_size)*self.layers[j].dw
-                ModBias = (learning_rate/samp_size)*self.layers[j].db
+                if optimizer == "sgd":
+                    ModWeights = (learning_rate/samp_size)*self.layers[j].dw
+                    ModBias = (learning_rate/samp_size)*self.layers[j].db
                 self.layers[j].UpdateWeightsBiases(ModWeights, ModBias) 
                 
     def loss(self, x_input, y_labels, lossMethod = "mse"):
