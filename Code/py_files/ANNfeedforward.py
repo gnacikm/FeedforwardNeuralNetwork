@@ -29,9 +29,9 @@ class Layer:
             self.g = activation[g]
             self.Dg = activation["D{}".format(g)]
         #self.weights = np.random.uniform(low = -0.05, high=0.05, size=(n[0],n[1]))
-        self.weights = np.random.normal(0.0, 0.05, size=(n[0],n[1]))
+        self.weights = np.random.normal(0.0, 0.05, size = (n[0],n[1]))
         self.bias = np.zeros(n[-1])
-        self.dw = np.zeros(shape=(n[0],n[1]))
+        self.dw = np.zeros(shape = (n[0],n[1]))
         self.db =  np.zeros(n[-1])
         self.z = np.zeros(n[-1])
         self.a = np.zeros(n[-1])
@@ -58,7 +58,7 @@ class Layer:
             Performs a feedforward algorithm and 
             returns the activation output of the layer
         """
-        self.z= aold.T@self.weights+self.bias
+        self.z = np.matmul(aold.T,self.weights) + self.bias
         self.a = self.g(self.z)
         return self.a
         
@@ -66,7 +66,7 @@ class Layer:
     @staticmethod
     def derivative(fun,  h = 1e-5):
         def df(z):
-            return (fun(z+h)-fun(z))/h
+            return (fun(z + h) - fun(z))/h
         return df
     
         
@@ -123,7 +123,7 @@ class OutputLayer(Layer):
             Performs backpropagation algorithm for the output layer
         """
         self.dcost_dz_last = FeedForwardANN.Dloss(y_train, y_pred)*self.Dg(self.z)
-        delta= self.dcost_dz_last[:]
+        delta = self.dcost_dz_last[:]
         self.DzDweight_last = a_prev
         self.DzDweight_last = self.DzDweight_last.reshape(-1, 1)
         delta = delta.reshape(-1, 1)
@@ -151,7 +151,7 @@ class FeedForwardANN:
         self.shape = np.array(shape)
         self.size = self.shape.size
         
-        if len(ActivFun)== 1:
+        if len(ActivFun) == 1:
             self.ActivFun = [ActivFun[0] for k in range(self.size-1)]
         elif len(ActivFun) == 2:
             self.ActivFun = [ActivFun[0] for k in range(self.size-2)] + [ActivFun[-1]]
@@ -217,8 +217,8 @@ class FeedForwardANN:
               y_train,
               epochs, 
               optimizer = "sgd",
-              minibatch_size=50,
-              learning_rate=0.1,
+              minibatch_size = 50,
+              learning_rate = 0.1,
               myseed = 0,
               mnist = True
               ):
@@ -311,7 +311,7 @@ class FeedForwardANN:
     
  
         
-    def plotnetwork(self, save_file=False):
+    def plotnetwork(self, save_file = False):
         """
         Desc: This function produces a NetworkX plot of your network
         """
@@ -329,7 +329,7 @@ class FeedForwardANN:
             for j in range(nodes):
                 self.G.add_node(i, pos = (x[k], y[j]))
                 layer_names[k].append(i)
-                i+=1
+                i += 1
 
         for k, item in enumerate(layer_names):
             if k == len(layer_names)-1:
@@ -339,7 +339,7 @@ class FeedForwardANN:
                     self.G.add_edge(node1, node2)
 
         pos = nx.get_node_attributes(self.G, 'pos')
-        nx.draw(self.G, pos=pos)
+        nx.draw(self.G, pos = pos)
         if save_file != False:
             plt.savefig(save_file)
 
