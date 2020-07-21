@@ -5,6 +5,7 @@ from tqdm import tqdm
 from activfunctions import activation
 
 
+
 class Layer:
     
     def __init__(self, n, g):
@@ -20,8 +21,7 @@ class Layer:
             db: np.array, derivative of cost function w.r.t biases in the current layer
         """
         self.n = n[-1]
-
-        
+    
         if callable(g):
             self.g = g
             self.Dg = self.derivative(g)
@@ -69,15 +69,12 @@ class Layer:
             return (fun(z+h)-fun(z))/h
         return df
     
-           
         
 class Dense(Layer):
     
     def __init__(self, n, g):
         super(Dense, self).__init__(n, g)
         
-    
-    
     def Backpropagation(self, 
                         y_train, 
                         a_prev, 
@@ -90,7 +87,6 @@ class Dense(Layer):
             a_prev: a numpy array, activation output of a previous layer
             w_next: a numpy array, weights from the next layer
             delta: a numpy array, next delta from backpropagation at later layer
-                      - 
             Desc:
             Performs backpropagation algorithm for one hidden layer
         """
@@ -108,15 +104,10 @@ class Dense(Layer):
         return delta
             
        
-
 class OutputLayer(Layer):
     
     def __init__(self, n, g):
         super(OutputLayer, self).__init__(n, g)
-        
-        
-
-    
         
     def Backpropagation(self, 
                         y_train, 
@@ -128,7 +119,6 @@ class OutputLayer(Layer):
             y_train: a numpy array, an element of your Y training set (labels)
             a_prev: a numpy array, activation output of a previous layer
             y_pred:  a numpy array, the output of your network 
-     
             Desc:
             Performs backpropagation algorithm for the output layer
         """
@@ -142,7 +132,8 @@ class OutputLayer(Layer):
         self.dw = DcostDw 
         self.db = DcostDb    
         return delta
-
+    
+         
 class FeedForwardANN:
     
     def __init__(self, shape, ActivFun):
