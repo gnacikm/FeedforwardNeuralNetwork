@@ -15,6 +15,6 @@ In order to run **ExamplesNN.ipynb** please first generate MNIST data set and Fa
 * **PreparingDataMNIST.ipynb**;
 * **PreparingDataFashionMNIST.ipynb**.
 
-The Class NeuralNetwork is written in the file **ANNfeedforward.py**. The file **activfunctions.py** contains activation functions.
+The Class FeedForwardANN is written in the file **ANNfeedforward.py**. The file **activfunctions.py** contains activation functions.
 
 For any inquiries please  <a href = "mailto: michal.gnacik@port.ac.uk">contact me via email</a>.

@@ -7,13 +7,12 @@ from activfunctions import activation
 
 class Layer:
     
-    def __init__(self, n, g, Lid):
+    def __init__(self, n, g):
         """
             Input:
             n: a tuple, 
                 (# of nodes in the previous layer, # of  nodes in the current layer)
             g: a string or method, (activation function)
-            Lid: an int, to represent the unique id of the layer
             Desc:
             weights: np.array, weights in the current layer, n[0] x n[1] matrix
             biases: np.array, biases in the current layer
@@ -21,7 +20,6 @@ class Layer:
             db: np.array, derivative of cost function w.r.t biases in the current layer
         """
         self.n = n[-1]
-        self.Lid = Lid
 
         
         if callable(g):
@@ -52,7 +50,6 @@ class Layer:
         self.weights -= ModWeights
         self.bias  -= ModBias
         
-        
     def Feedforward(self, aold):
         """
             Input:
@@ -64,61 +61,89 @@ class Layer:
         self.z= aold.T@self.weights+self.bias
         self.a = self.g(self.z)
         return self.a
-    
-    
-    def Backpropagation(self, 
-                        y_train, 
-                        a_prev, 
-                        lastlayer=False, 
-                        **kwargs
-                        ):
-        """
-            Input:
-            y_train: a numpy array, an element of your Y training set (labels)
-            a_prev: a numpy array, activation output of a previous layer
-            lastlayer: bool, if this is last layer
-            **kwargs: depending on a layer it may contain
-                      - y_pred the output of your network 
-                      - delta, next delta from backpropagation at later layer
-                      - w_next, weights from the next layer
-            Desc:
-            Performs backpropagation algorithm for one layer
-        """
-        if lastlayer:
-            w = self.weights
-            self.dcost_dz_last = NeuralNetwork.Dloss(y_train, kwargs["y_pred"])*self.Dg(self.z)
-            delta= self.dcost_dz_last[:]
-            self.DzDweight_last = a_prev
-            self.DzDweight_last = self.DzDweight_last.reshape(-1, 1)
-            delta = delta.reshape(-1, 1)
-            DcostDw = np.multiply(self.DzDweight_last,delta.T) 
-            DcostDb = delta.T[0]
-            self.dw = DcostDw 
-            self.db = DcostDb
-        else:
-            w =  kwargs["w_next"]
-            DzDw =  a_prev
-            DzDw = DzDw.reshape(-1, 1)
-            ActivTerm = self.Dg(self.z)
-            ActivTerm = ActivTerm.reshape(-1, 1)
-            DzDz_prev = np.multiply(ActivTerm, w)
-            delta = np.dot(DzDz_prev, kwargs["delta"])
-            DcostDw = np.multiply(DzDw, delta.T)
-            DcostDb = delta.T[0]
-            self.dw =  DcostDw
-            self.db = DcostDb
-        return delta
-            
-       
+        
+        
     @staticmethod
     def derivative(fun,  h = 1e-5):
         def df(z):
             return (fun(z+h)-fun(z))/h
         return df
     
-      
+           
+        
+class Dense(Layer):
+    
+    def __init__(self, n, g):
+        super(Dense, self).__init__(n, g)
+        
+    
+    
+    def Backpropagation(self, 
+                        y_train, 
+                        a_prev, 
+                        w_next, 
+                        delta
+                        ):
+        """
+            Input:
+            y_train: a numpy array, an element of your Y training set (labels)
+            a_prev: a numpy array, activation output of a previous layer
+            w_next: a numpy array, weights from the next layer
+            delta: a numpy array, next delta from backpropagation at later layer
+                      - 
+            Desc:
+            Performs backpropagation algorithm for one hidden layer
+        """
+        w =  w_next
+        DzDw =  a_prev
+        DzDw = DzDw.reshape(-1, 1)
+        ActivTerm = self.Dg(self.z)
+        ActivTerm = ActivTerm.reshape(-1, 1)
+        DzDz_prev = np.multiply(ActivTerm, w)
+        delta = np.dot(DzDz_prev, delta)
+        DcostDw = np.multiply(DzDw, delta.T)
+        DcostDb = delta.T[0]
+        self.dw =  DcostDw
+        self.db = DcostDb
+        return delta
+            
+       
 
-class NeuralNetwork:
+class OutputLayer(Layer):
+    
+    def __init__(self, n, g):
+        super(OutputLayer, self).__init__(n, g)
+        
+        
+
+    
+        
+    def Backpropagation(self, 
+                        y_train, 
+                        a_prev, 
+                        y_pred
+                        ):
+        """
+            Input:
+            y_train: a numpy array, an element of your Y training set (labels)
+            a_prev: a numpy array, activation output of a previous layer
+            y_pred:  a numpy array, the output of your network 
+     
+            Desc:
+            Performs backpropagation algorithm for the output layer
+        """
+        self.dcost_dz_last = FeedForwardANN.Dloss(y_train, y_pred)*self.Dg(self.z)
+        delta= self.dcost_dz_last[:]
+        self.DzDweight_last = a_prev
+        self.DzDweight_last = self.DzDweight_last.reshape(-1, 1)
+        delta = delta.reshape(-1, 1)
+        DcostDw = np.multiply(self.DzDweight_last,delta.T) 
+        DcostDb = delta.T[0]
+        self.dw = DcostDw 
+        self.db = DcostDb    
+        return delta
+
+class FeedForwardANN:
     
     def __init__(self, shape, ActivFun):
         """
@@ -145,10 +170,10 @@ class NeuralNetwork:
         
         
         self.layers = [
-            Layer((shape[k-1],shape[k]),
-                  self.ActivFun[k-1], Lid = k)
-            for k in range(1,self.size)
-        ]
+            Dense((shape[k-1],shape[k]),
+                  self.ActivFun[k-1])
+            for k in range(1,self.size-1)
+        ] + [OutputLayer((shape[-2], shape[-1]), self.ActivFun[-1])]
         
    
   
@@ -183,7 +208,6 @@ class NeuralNetwork:
         
         delta = self.layers[-1].Backpropagation(y_train, 
                                        a_prev, 
-                                       lastlayer = True, 
                                        y_pred = y_pred 
                                        )
         for k in range(self.size-3, -1, -1):
@@ -194,7 +218,6 @@ class NeuralNetwork:
             w_next = self.layers[k+1].weights
             delta = self.layers[k].Backpropagation(y_train, 
                                                   a_prev,
-                                                  lastlayer = False,
                                                   w_next = w_next, 
                                                   delta = delta
                                                   )
