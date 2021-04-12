@@ -12,9 +12,11 @@ The structure of this repository is the following:
 
 In the notebook **ExamplesNN.ipynb** we demonstrate how our neural network performs on various data sets, including MNIST and Fashion MNIST. 
 In order to run **ExamplesNN.ipynb** please first generate MNIST data set and Fashion MNIST (we get it via Keras <code>from keras.datasets import mnist, fashion_mnist</code>) via running all cells from the Notebooks: 
-* **PreparingDataMNIST.ipynb**;
-* **PreparingDataFashionMNIST.ipynb**.
+* **A.PreparingDataMNIST.ipynb**;
+* **B.PreparingDataFashionMNIST.ipynb**.
 
 The Class FeedForwardANN is written in the file **ANNfeedforward.py**. The file **activfunctions.py** contains activation functions.
+
+The file requirements.txt contains all required Python packages. One may install it either via pip install -r requirements.txt or by running run.py. 
 
 For any inquiries please  <a href = "mailto: michal.gnacik@port.ac.uk">contact me via email</a>.

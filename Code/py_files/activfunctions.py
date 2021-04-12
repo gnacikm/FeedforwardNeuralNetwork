@@ -36,3 +36,6 @@ activation = {
     "ReLu": ReLu,
     "DReLu": DReLu
     }
+
+if __name__ == "__main__":
+    pass
